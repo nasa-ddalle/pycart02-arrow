@@ -2,17 +2,16 @@
 	// Iteration control and command-line inputs
 	"RunControl": {
         // Run sequence
-        "PhaseSequece": [0],
+        "PhaseSequence": [0],
         "PhaseIters": [200],
         // Verbose
         "Verbose": true,
         // System configuration
-	    "nProc": 4,
+	    "nProc": 8,
 	    // Options for ``flowCart``
 	    "flowCart": {
             "it_fc": 200,
             "mpi_fc": 0,
-            "use_aero_csh": 0,
             "cfl": 1.1,
             "mg_fc": 3,
             "y_is_spanwise": true
