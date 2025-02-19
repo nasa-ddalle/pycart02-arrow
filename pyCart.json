@@ -48,9 +48,8 @@
     
     // RunMatrix (i.e. run matrix) description
     "RunMatrix": {
-        "Keys": ["Mach", "alpha_t", "phi"],
+        "Keys": ["Mach", "alpha_t", "phi", "config"],
         "File": "matrix.csv",
-        "GroupMesh": true,
-        "GroupPrefix": "poweroff"
+        "GroupMesh": false
     }
 }
