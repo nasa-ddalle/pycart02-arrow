@@ -36,31 +36,36 @@ the features of pyCart.
     .. code-block:: none
     
         $ pycart -c
-        Case Config/Run Directory    Status  Iterations  Que CPU Time
-        ---- ----------------------- ------- ----------- --- --------
-        0    poweroff/m1.25a0.0r0.0  ---     /           .   
-        1    poweroff/m1.25a1.0r0.0  ---     /           .   
-        2    poweroff/m1.25a1.0r15.0 ---     /           .   
-        3    poweroff/m1.25a1.0r30.0 ---     /           .   
-        4    poweroff/m1.25a1.0r45.0 ---     /           .   
-        5    poweroff/m1.5a1.0r0.0   ---     /           .   
-        6    poweroff/m1.5a1.0r15.0  ---     /           .   
-        7    poweroff/m1.5a1.0r30.0  ---     /           .   
-        8    poweroff/m1.5a1.0r45.0  ---     /           .   
-        9    poweroff/m1.75a1.0r0.0  ---     /           .   
-        10   poweroff/m1.75a1.0r15.0 ---     /           .   
-        11   poweroff/m1.75a1.0r30.0 ---     /           .   
-        12   poweroff/m1.75a1.0r45.0 ---     /           .   
-        13   poweroff/m2.0a1.0r0.0   ---     /           .   
-        14   poweroff/m2.0a1.0r15.0  ---     /           .   
-        15   poweroff/m2.0a1.0r30.0  ---     /           .   
-        16   poweroff/m2.0a1.0r45.0  ---     /           .   
-        17   poweroff/m2.5a1.0r0.0   ---     /           .   
-        18   poweroff/m2.5a1.0r15.0  ---     /           .   
-        19   poweroff/m2.5a1.0r30.0  ---     /           .   
-        20   poweroff/m2.5a1.0r45.0  ---     /           .   
-        
-        ---=21, 
+        Using pycart JSON file: pyCart.json
+        Case Config/Run Directory    Status  Iterations Que CPU Time
+        ---- ----------------------- ------- ---------- --- --------
+        0    poweroff/m1.25a0.0r0.0  ---     /          .
+        1    poweroff/m1.25a1.0r0.0  ---     /          .
+        2    poweroff/m1.25a1.0r15.0 ---     /          .
+        3    poweroff/m1.25a1.0r30.0 ---     /          .
+        4    poweroff/m1.25a1.0r45.0 ---     /          .
+        5    poweroff/m1.5a0.0r0.0   ---     /          .
+        6    poweroff/m1.5a1.0r0.0   ---     /          .
+        7    poweroff/m1.5a1.0r15.0  ---     /          .
+        8    poweroff/m1.5a1.0r30.0  ---     /          .
+        9    poweroff/m1.5a1.0r45.0  ---     /          .
+        10   poweroff/m1.75a0.0r0.0  ---     /          .
+        11   poweroff/m1.75a1.0r0.0  ---     /          .
+        12   poweroff/m1.75a1.0r15.0 ---     /          .
+        13   poweroff/m1.75a1.0r30.0 ---     /          .
+        14   poweroff/m1.75a1.0r45.0 ---     /          .
+        15   poweroff/m2.0a0.0r0.0   ---     /          .
+        16   poweroff/m2.0a1.0r0.0   ---     /          .
+        17   poweroff/m2.0a1.0r15.0  ---     /          .
+        18   poweroff/m2.0a1.0r30.0  ---     /          .
+        19   poweroff/m2.0a1.0r45.0  ---     /          .
+        20   poweroff/m2.5a0.0r0.0   ---     /          .
+        21   poweroff/m2.5a1.0r0.0   ---     /          .
+        22   poweroff/m2.5a1.0r15.0  ---     /          .
+        23   poweroff/m2.5a1.0r30.0  ---     /          .
+        24   poweroff/m2.5a1.0r45.0  ---     /          .
+
+        ---=25,
         
 Input Files
 -----------
@@ -84,8 +89,8 @@ content.
             // Iteration control and command-line inputs
             "RunControl": {
                 // Run sequence
-                "InputSeq": [0],
-                "IterSeq": [200],
+                "PhaseSequence": [0],
+                "PhaseIters": [200],
                 ...
             },
             
@@ -93,10 +98,9 @@ content.
             
             // RunMatrix (i.e. run matrix) description
             "RunMatrix": {
-                "Keys": ["Mach", "alpha_t", "phi"],
+                "Keys": ["Mach", "alpha_t", "phi", "config"],
                 "File": "matrix.csv",
-                "GroupMesh": true,
-                "GroupPrefix": "poweroff"
+                "GroupMesh": false
             }
         }
 
@@ -110,17 +114,16 @@ various Cart3D programs.
     
         "RunControl": {
             // Run sequence
-            "PhaseSequece": [0],
+            "PhaseSequence": [0],
             "PhaseIters": [200],
             // Verbosity
             "Verbose": true,
             // System configuration
-            "nProc": 4,
+            "nProc": 8,
             // Options for ``flowCart``
             "flowCart": {
                 "it_fc": 200,
                 "mpi_fc": 0,
-                "use_aero_csh": 0,
                 "cfl": 1.1,
                 "mg_fc": 3,
                 "y_is_spanwise": true
@@ -165,12 +168,12 @@ required for any pyCart project) are *PhaseSequence*, *PhaseIters*, and
 The *Verbose* option is relatively self-explanatory in that more information is
 printed to either the terminal or the PBS output file.  In particular, each
 command that is issued to the top-level terminal also prints the name of the
-directory in which it is run and the name of the file storing its STDOUT
-output.
+directory in which it is run and the names of the files storing its ``STDOUT``
+and ``STDERR`` output.
     
 For a simple case, these parameters seem unnecessarily confusing. Why not just
 tell ``flowCart`` how many iterations to run and be done with it? For one
-thing, *IterSeq* specifies a required number of iterations whereas *it_fc* just
+thing, *PhaseIters* specifies a required number of iterations whereas *it_fc* just
 suggests to ``flowCart`` or ``mpix_flowCart`` how many iterations to run. If
 ``flowCart`` exits early due to some kind of failure, this convention means
 that pyCart will clearly alert us.
@@ -209,10 +212,10 @@ of the surface triangulation.
             "File": "arrow.xml",
             // Declare forces and moments
             "Force": ["cap", "body", "fins", "bullet_no_base", "bullet_total"],
-            "RefPoint": {"bullet_no_base": [0.0, 0.0, 0.0]}
+            "RefPoint": {"bullet_no_base": [0.0, 0.0, 0.0]},
             // Reference quantities
             "RefArea": 3.14159,
-            "RefLength": 1.0,
+            "RefLength": 1.0
         },
         
 The *Config* section gives instructions about which components to track, what
@@ -233,26 +236,28 @@ areas for different components in the same run.
     .. code-block:: javascript
     
         "RunMatrix": {
-            "Keys": ["Mach", "alpha_t", "phi"],
+            "Keys": ["Mach", "alpha_t", "phi", "config"],
             "File": "matrix.csv",
-            "GroupMesh": true,
-            "GroupPrefix": "poweroff"
+            "GroupMesh": false
         }
 
 The final section (actually, the order is irrelevant, but it's the last section
 in this file) describes the run matrix, i.e. trajectory. The *Keys* parameter
 lists the names of variables that will change in the run matrix, i.e. the
 independent variables. In this case, we are using Mach number, total angle of
-attack, and velocity roll angle. There is a set of predefined trajectory keys,
-and all three of these examples are in that set, but later examples will show
-how to define customized trajectory keys in this section.
+attack, velocity roll angle, and configuration name. There is a set of
+predefined trajectory keys, and all four of these examples are in that set,
+but later examples will show how to define customized trajectory keys in this
+section.
 
 The *File* parameter points to a file in which the cases to run are listed, and
 *GroupMesh* specifies whether or not each case can use the same mesh.  Setting
 it to ``true`` means that ``cubes`` is only run once for the matrix (more
-accurately, once for each group, but this example has only one group).  The
-*GroupPrefix* gives a name for the folder in which to put all the cases, which
-explains why a typical case is named ``poweroff/m1.50a2.00r0.00``, for example.
+accurately, once for each group, but this example has only one group) and
+linked into each case folder; with ``false``, as here, each case builds and
+keeps its own mesh.  The *config* key (here always ``poweroff``) gives a name
+for the folder in which to put all the cases of that configuration, which
+explains why a typical case is named ``poweroff/m1.5a1.0r0.0``, for example.
 
 There are two more sections in the ``pyCart.json``, which describe various
 products.
@@ -355,12 +360,12 @@ of conditions.
 
     .. code-block:: none
     
-        # Mach, alpha, phi
-        1.25,   0.00,   0.0
-        1.25,   1.00,   0.0
-        1.25,   1.00,   15.0
+        # Mach, alpha, phi, config
+        1.25,   0.00,   0.0  , poweroff
+        1.25,   1.00,   0.0  , poweroff
+        1.25,   1.00,   15.0 , poweroff
         ...
-        2.50,   1.00,   45.0
+        2.50,   1.00,   45.0 , poweroff
 
 The comment line at the top is not read by pyCart but is placed there for
 readability.  Further, the commas are not required; pyCart and other CAPE
@@ -374,31 +379,40 @@ Let's run one case, but not the first case.  We can do this by using the
     .. code-block:: none
     
         $ pycart -I 12
+        Using pycart JSON file: pyCart.json
         Case Config/Run Directory    Status  Iterations  Que CPU Time
         ---- ----------------------- ------- ----------- --- --------
-        0    poweroff/m1.75a1.0r15.0 ---     /           .   
-          Group name: 'poweroff' (index 0)
+        12   poweroff/m1.75a1.0r15.0 ---     /           .
+          Case name: 'poweroff/m1.75a1.0r15.0' (index 12)
           Preparing surface triangulation...
-          Reading tri file(s) from root directory.
-             Writing triangulation: 'Components.i.tri'
-         > autoInputs -r 8 -t Components.i.tri -maxR 10
-             (PWD = 'pycart02-arrow/poweroff')
+          Reading tri file(s):
+            arrow.tri
+         > autoInputs -r 8 -t Components.i.tri -maxR 10 -nDiv 4
+             (PWD = 'poweroff/m1.75a1.0r15.0/')
              (STDOUT = 'autoInputs.out')
-         > cubes -pre preSpec.c3d.cntl -maxR 10 -reorder -a 10 -b 2
-             (PWD = 'pycart02-arrow/poweroff')
-             (STDOUT = 'cubes.out')
-         > mgPrep -n 3
-             (PWD = '/u/wk/ddalle/usr/pycart/examples/pycart/02_arrow/poweroff')
-             (STDOUT = 'mgPrep.out')
+             (STDERR = 'autoInputs.out')
         Using template for 'input.cntl' file
-             Starting case 'poweroff/m1.75a1.0r15.0'.
-         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -binaryIO -tm 0
-             (PWD = 'poweroff/m1.75a1.0r15.0')
+             Starting case 'poweroff/m1.75a1.0r15.0'
+         > cubes -pre preSpec.c3d.cntl -maxR 10 -reorder -a 10 -b 2
+             (PWD = 'poweroff/m1.75a1.0r15.0/')
+             (STDOUT = 'cubes.out')
+             (STDERR = 'cubes.out')
+         > mgPrep -n 3
+             (PWD = 'poweroff/m1.75a1.0r15.0/')
+             (STDOUT = 'mgPrep.out')
+             (STDERR = 'mgPrep.out')
+         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -no_fmg -binaryIO -tm 0
+             (PWD = 'poweroff/m1.75a1.0r15.0/')
              (STDOUT = 'flowCart.out')
-        
+             (STDERR = 'flowCart.err')
+
         Submitted or ran 1 job(s).
-        
+
         ---=1, 
+
+Because ``"Verbose": true`` is set in ``pyCart.json``, every command issued is
+echoed along with its working directory and the files capturing its ``STDOUT``
+and ``STDERR``.
 
 We can check the status of all the cases at Mach 1.75 using the following.  Like
 the previous example, the CPU time is below 0.1 hours.
@@ -406,14 +420,19 @@ the previous example, the CPU time is below 0.1 hours.
     .. code-block:: none
     
         $ pycart -I 11:15 -c
-        Case Config/Run Directory    Status  Iterations  Que CPU Time
-        ---- ----------------------- ------- ----------- --- --------
-        0    poweroff/m1.75a1.0r0.0  ---     /           .   
-        1    poweroff/m1.75a1.0r15.0 DONE    200/200     .   0.0
-        2    poweroff/m1.75a1.0r30.0 ---     /           .   
-        3    poweroff/m1.75a1.0r45.0 ---     /           .   
-        
+        Using pycart JSON file: pyCart.json
+        Case Config/Run Directory    Status  Iterations Que CPU Time
+        ---- ----------------------- ------- ---------- --- --------
+        11   poweroff/m1.75a1.0r0.0  ---     /          .
+        12   poweroff/m1.75a1.0r15.0 DONE    200/200    .       0.07
+        13   poweroff/m1.75a1.0r30.0 ---     /          .
+        14   poweroff/m1.75a1.0r45.0 ---     /          .
+
         ---=3, DONE=1, 
+
+Note that the ``-I`` option displays and selects the global case indices, and
+the range ``11:15`` is exclusive of the upper bound, so this covers the four
+angle-of-attack cases at Mach 1.75.
 
 We can use a more direct method to select cases with a certain Mach number using
 a constraint.  Let's run the remaining Mach 1.75 cases using that capability.
@@ -421,30 +440,78 @@ a constraint.  Let's run the remaining Mach 1.75 cases using that capability.
     .. code-block:: none
     
         $ pycart --cons "Mach==1.75, alpha_t==1.0"
+        Using pycart JSON file: pyCart.json
         Case Config/Run Directory    Status  Iterations  Que CPU Time
         ---- ----------------------- ------- ----------- --- --------
-        0    poweroff/m1.75a1.0r0.0  ---     /           .   
+        11   poweroff/m1.75a1.0r0.0  ---     /           .
+          Case name: 'poweroff/m1.75a1.0r0.0' (index 11)
+          Preparing surface triangulation...
+          Reading tri file(s):
+            arrow.tri
+         > autoInputs -r 8 -t Components.i.tri -maxR 10 -nDiv 4
+             (PWD = 'poweroff/m1.75a1.0r0.0/')
+             (STDOUT = 'autoInputs.out')
+             (STDERR = 'autoInputs.out')
         Using template for 'input.cntl' file
-             Starting case 'poweroff/m1.75a1.0r0.0'.
-         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -binaryIO -tm 0
-             (PWD = 'poweroff/m1.75a1.0r0.0')
+             Starting case 'poweroff/m1.75a1.0r0.0'
+         > cubes -pre preSpec.c3d.cntl -maxR 10 -reorder -a 10 -b 2
+             (PWD = 'poweroff/m1.75a1.0r0.0/')
+             (STDOUT = 'cubes.out')
+             (STDERR = 'cubes.out')
+         > mgPrep -n 3
+             (PWD = 'poweroff/m1.75a1.0r0.0/')
+             (STDOUT = 'mgPrep.out')
+             (STDERR = 'mgPrep.out')
+         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -no_fmg -binaryIO -tm 0
+             (PWD = 'poweroff/m1.75a1.0r0.0/')
              (STDOUT = 'flowCart.out')
-        1    poweroff/m1.75a1.0r15.0 DONE    200/200     .   0.0
-        2    poweroff/m1.75a1.0r30.0 ---     /           .   
+             (STDERR = 'flowCart.err')
+        12   poweroff/m1.75a1.0r15.0 DONE    200/200     .        0.1
+        13   poweroff/m1.75a1.0r30.0 ---     /           .
+          Case name: 'poweroff/m1.75a1.0r30.0' (index 13)
+          Preparing surface triangulation...
+         > autoInputs -r 8 -t Components.i.tri -maxR 10 -nDiv 4
+             (PWD = 'poweroff/m1.75a1.0r30.0/')
+             (STDOUT = 'autoInputs.out')
+             (STDERR = 'autoInputs.out')
         Using template for 'input.cntl' file
-             Starting case 'poweroff/m1.75a1.0r30.0'.
-         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -binaryIO -tm 0
-             (PWD = 'poweroff/m1.75a1.0r30.0')
+             Starting case 'poweroff/m1.75a1.0r30.0'
+         > cubes -pre preSpec.c3d.cntl -maxR 10 -reorder -a 10 -b 2
+             (PWD = 'poweroff/m1.75a1.0r30.0/')
+             (STDOUT = 'cubes.out')
+             (STDERR = 'cubes.out')
+         > mgPrep -n 3
+             (PWD = 'poweroff/m1.75a1.0r30.0/')
+             (STDOUT = 'mgPrep.out')
+             (STDERR = 'mgPrep.out')
+         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -no_fmg -binaryIO -tm 0
+             (PWD = 'poweroff/m1.75a1.0r30.0/')
              (STDOUT = 'flowCart.out')
-        3    poweroff/m1.75a1.0r45.0 ---     /           .   
+             (STDERR = 'flowCart.err')
+        14   poweroff/m1.75a1.0r45.0 ---     /           .
+          Case name: 'poweroff/m1.75a1.0r45.0' (index 14)
+          Preparing surface triangulation...
+         > autoInputs -r 8 -t Components.i.tri -maxR 10 -nDiv 4
+             (PWD = 'poweroff/m1.75a1.0r45.0/')
+             (STDOUT = 'autoInputs.out')
+             (STDERR = 'autoInputs.out')
         Using template for 'input.cntl' file
-             Starting case 'poweroff/m1.75a1.0r45.0'.
-         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -binaryIO -tm 0
-             (PWD = 'poweroff/m1.75a1.0r45.0')
+             Starting case 'poweroff/m1.75a1.0r45.0'
+         > cubes -pre preSpec.c3d.cntl -maxR 10 -reorder -a 10 -b 2
+             (PWD = 'poweroff/m1.75a1.0r45.0/')
+             (STDOUT = 'cubes.out')
+             (STDERR = 'cubes.out')
+         > mgPrep -n 3
+             (PWD = 'poweroff/m1.75a1.0r45.0/')
+             (STDOUT = 'mgPrep.out')
+             (STDERR = 'mgPrep.out')
+         > flowCart -his -clic -N 200 -y_is_spanwise -limiter 2 -T -cfl 1.1 -mg 3 -no_fmg -binaryIO -tm 0
+             (PWD = 'poweroff/m1.75a1.0r45.0/')
              (STDOUT = 'flowCart.out')
-        
+             (STDERR = 'flowCart.err')
+
         Submitted or ran 3 job(s).
-        
+
         ---=3, DONE=1,
         
 It is also possible to select these cases using ``pycart --filter m1.75a1``,
@@ -454,17 +521,35 @@ applied.
         
 Run Folders and Output Files
 ----------------------------
-Let's take a look at the files that pyCart created.  First, let's look at the 
-files that define the mesh in the ``poweroff/`` folder.
+Let's take a look at the files that pyCart created.  Because ``GroupMesh`` is
+``false``, the ``poweroff/`` folder only contains the case folders:
 
     .. code-block:: none
     
         $ cd poweroff/
         $ ls
-        autoInputs.out    input.c3d       m1.75a1.0r45.0  mgPrep.out
-        Components.i.tri  m1.75a1.0r0.0   Mesh.c3d.Info   preSpec.c3d.cntl
-        Config.xml        m1.75a1.0r15.0  Mesh.mg.c3d   
-        cubes.out         m1.75a1.0r30.0  Mesh.R.c3d   
+        m1.75a1.0r0.0  m1.75a1.0r15.0  m1.75a1.0r30.0  m1.75a1.0r45.0
+
+All of the mesh files live in each case folder.
+
+    .. code-block:: none
+    
+        $ cd m1.75a1.0r0.0/
+        $ ls
+        autoInputs.out        forces.dat          pycart_start.dat
+        body.dat              functional.dat      pycart_time.dat
+        bullet_no_base.dat    history.dat         run.00.200
+        bullet_total.dat      input.00.cntl       run_cart3d.pbs
+        cape                  input.c3d           Mesh.c3d.Info
+        cap.dat               input.cntl          Mesh.mg.c3d
+        case.json             loadsCC.dat         Mesh.R.c3d
+        check.00200           mgPrep.out          moments.dat
+        checkDT.00200         preSpec.c3d.cntl
+        Components.i.00200.plt cutPlanes.00200.plt
+        Components.i.tri      entire.dat
+        Components.i.triq     fins.dat
+        conditions.json       flowCart.err
+        Config.xml            cubes.out
 
 The ``.out`` files save STDIO printouts from the mesh-generation commands.
 The ``Mesh.mg.c3d`` is the actual mesh file, including multigrid levels
@@ -472,7 +557,9 @@ The ``Mesh.mg.c3d`` is the actual mesh file, including multigrid levels
 to ``Components.i.tri`` in this folder; and the configuration file
 ``arrow.xml`` is copied to ``Config.xml``. The single mesh without
 multigrid levels is ``Mesh.R.c3d``, and the remaining files are created by
-``autoInputs``.
+``autoInputs``.  If ``GroupMesh`` were ``true``, all of these files would
+appear in the ``poweroff/`` folder instead, created once and linked into
+each case folder.
 
 The contents of ``input.c3d`` set the minimum and maximum *x*, *y*, and *z*
 coordinates for the domain on which Cart3D is solved, and is a pretty unique
@@ -506,25 +593,9 @@ The third row of *BBox* commands define a region with *x*-coordinates between
 refined at least 7 times.  In other words, the mesh size must be at least 128
 times smaller than the original mesh.
 
-Now let's look at the files in a run folder.
-
-    .. code-block:: none
-    
-        $ cd m1.75a1.0r0.0
-        $ ls
-        body.dat              Components.i.tri     history.dat    moments.dat
-        bullet_no_base.dat    Components.i.triq    input.00.cntl  preSpec.c3d.cntl
-        bullet_total.dat      conditions.json      input.c3d      run.00.200
-        cap.dat               Config.xml           input.cntl     run_cart3d.pbs
-        case.json             cutPlanes.00200.plt  loadsCC.dat     
-        check.00200           entire.dat           Mesh.c3d.Info  
-        checkDT.00200         forces.dat           Mesh.mg.c3d    
-        Components.00200.plt  functional.dat       Mesh.R.c3d     
-
-Obviously, there are quite a few files, although many of them are links. For
-example, the files that are listed here and in the parent folder discussed
-above are either links or copies. The ``input.c3d`` and
-``preSpec.c3d.cntl`` files are copied because they are small.
+The folder ``cape/`` stores pyCart's own log files for this case, and
+``input.cntl`` is a link to ``input.00.cntl``; everything else is a real
+file created or copied by pyCart or ``flowCart``.
 
 Most of the files ending with ``.dat`` are iterative history files. Some of
 these are standard results of running ``flowCart``, and others are specifically
@@ -536,8 +607,8 @@ iteration number and the residual at that iteration.
 The files ``forces.dat`` and ``moments.dat`` report the forces and
 moments on the ``entire`` component, i.e. the entire triangulation. These files
 are always produced, report results before any axis changes, and are ignored by
-pyCart. Four other files, ``body.dat``, ``bullet_no_base.dat``,
-``bullet_total.dat``, and ``cap.dat``, are specifically requested.
+pyCart. Five other files, ``body.dat``, ``bullet_no_base.dat``,
+``bullet_total.dat``, ``cap.dat``, and ``fins.dat``, are specifically requested.
 Cart3D produces them because the ``input.cntl`` file contains lines ``Force
 body``, ``Force cap``, etc. in the ``$__Force_Moment_Processing:`` section.
 Although we did not request ``entire`` in our pyCart setup, it got produced
@@ -545,14 +616,14 @@ here because the template ``input.cntl`` file contains the line ``Force
 entire``. These ``.dat`` files are used by pyCart to read the iterative history
 of forces and moments on parts of the vehicle.
 
-The volume and surfaceresults files are ``check.00200``,
-``Components.00200.plt``, ``Components.i.triq``, and ``cutPlanes.00200.plt``.
+The volume and surface results files are ``check.00200``,
+``Components.i.00200.plt``, ``Components.i.triq``, and ``cutPlanes.00200.plt``.
 The ``check.00200`` file is a binary file used and created by Cart3D, and the
 ``plt`` files are Tecplot files. These Tecplot files are created by Cart3D, and
 pyCart changes the file names by inserting the iteration numbers to which they
 correspond. Finally, the ``Components.i.triq`` file is very similar to the
 surface triangulation except with extra info describing the state solution at
-each vertex. Noe that the ``Components.0200.plt`` and ``Components.i.triq``
+each vertex. Note that the ``Components.i.00200.plt`` and ``Components.i.triq``
 files do not contain identical information because the Tecplot file references
 the Cartesian volume mesh projected onto the surface while the ``triq`` file
 only has solution data at the triangulation vertices.
@@ -564,27 +635,32 @@ run ``flowCart``.
     
         #!/bin/bash
         #PBS -S /bin/bash
-        #PBS -N m1.75a1r0
+        #PBS -N pyCart-m1.75a1r0poweroff
         #PBS -r n
         #PBS -j oe
-        #PBS -l select=1:ncpus=12:mpiprocs=12
-        #PBS -l walltime=2:00:00
+        #PBS -l select=1:ncpus=1
+        #PBS -l walltime=8:00:00
         #PBS -q normal
         
         # Go to the working directory.
-        cd /u/wk/ddalle/usr/pycart/examples/pycart/02_arrow/poweroff/m1.75a1.0r0.0
+        cd /path/to/pycart02-arrow/work/poweroff/m1.75a1.0r0.0
+        
+        # Set umask.
+        umask 0027
         
         # Additional shell commands
         
-        # Call the flowCart/mpix_flowCart/aero.csh interface.
-        run_flowCart.py
+        # Call the main executable
+        python3 -m cape.pycart run
 
 The script includes some PBS settings (which are not used in this example), a
-command to change to the correct folder using an absolute path, whatever shell
-commands are specified in the JSON file, and a command to determine the correct
-Cart3D command.  The file ``case.json`` contains all of the
-``pyCart.json`` settings from the ``"flowCart"`` section, because they are
-needed to determine the command-line inputs.
+command to change to the correct folder using an absolute path, and a command
+to determine the correct Cart3D command; the last is normally
+``flowCart`` or ``mpix_flowCart``, invoked by re-entering ``pycart`` (which
+reads the case settings and reconstructs the command line).  The file
+``case.json`` contains all of the ``pyCart.json`` settings from the
+``"flowCart"`` section, because they are needed to determine the command-line
+inputs.
 
 That covers the essential files for this example.  The very import
 ``input.cntl`` file (which in this case is just a link to
